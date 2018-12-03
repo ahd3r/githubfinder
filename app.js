@@ -1,38 +1,34 @@
 // Init GitHub
 const github=new GitHub;
+// Init UI
+const ui = new UI;
 
 // UI components 
 const valueInInput = document.querySelector('#userLogin');
 const btnInNav = document.querySelector('#reloadpage');
 const placeForProfile = document.querySelector('#profile');
 
+// Event
 btnInNav.addEventListener('click', ()=>{
     location.reload();
 });
 
 valueInInput.addEventListener('keyup', (e)=>{
-		const userText = e.target.value;
-    if(userText!==''){
-			github.getUser(userText).then(data=>{
-				if(data.profile.message==='Not Found'){
-					showAlert('This user doesn\'t exist');
-				}else{
-					console.log(data);
+	const userText = e.target.value;
+	if(userText!==''){
+		github.getUser(userText).then(data=>{
+			if(data.profile.message==='Not Found'){
+				if(!document.querySelector('.alert')){
+					ui.showAlert('This user doesn\'t exist');
 				}
-			});
-    }else{
-			while(placeForProfile.firstChild){
-				placeForProfile.firstChild.remove();
+			}else{
+				ui.showProfile(data.profile);
+				ui.showRepos(data.repos);
 			}
-		}
+		}).catch(err=>{
+			ui.showAlert(err);
+		});
+	}else{
+		ui.clearMainPlace();
+	}
 });
-
-function showAlert(text){
-	const stuff = document.createElement('p').textContent=text;
-	stuff.className='alert alert-danger';
-	stuff.setAttribute('role', 'alert');
-	document.querySelector('body').insertBefore(document.createElement('p'), document.querySelector('body>.container'));
-	setTimeout(()=>{
-		document.querySelector('.alert').remove();
-	},3000);
-}
